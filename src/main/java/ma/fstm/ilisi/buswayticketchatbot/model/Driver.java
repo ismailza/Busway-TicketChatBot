@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Data
 @Builder
@@ -20,7 +19,5 @@ public class Driver {
     private Long id;
     private String firstname;
     private String lastname;
-    @Relationship(type = "DRIVES", direction = Relationship.Direction.OUTGOING)
-    private Bus bus;
 
 }

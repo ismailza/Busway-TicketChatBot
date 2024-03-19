@@ -11,7 +11,7 @@
     <groupId>ma.fstm.ilisi</groupId>
     <artifactId>Busway-TicketChatBot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Busway-TicketChatbot</name>
+    <name>Busway-TicketChatBot</name>
     <description>Busway-TicketChatbot</description>
     <properties>
         <java.version>21</java.version>

@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BusDTO {
-    private Long immatriculation;
-    private int numero;
+    private Long matriculation;
+    private int busLine;
     private int capacity;
+    private DriverDTO driver;
+
 }

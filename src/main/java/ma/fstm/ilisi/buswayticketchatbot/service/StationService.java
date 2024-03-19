@@ -25,8 +25,12 @@ public class StationService {
         return mapToStationDTO(this.stationRepository.findById(id).orElse(null));
     }
 
-    public StationDTO save(StationDTO stationDTO) {
-        return mapToStationDTO(this.stationRepository.save(mapToStation(stationDTO)));
+    public void save(StationDTO stationDTO) {
+        mapToStationDTO(this.stationRepository.save(mapToStation(stationDTO)));
+    }
+
+    public void delete(Long id) {
+        this.stationRepository.deleteById(id);
     }
 
     public StationDTO mapToStationDTO(Station station) {

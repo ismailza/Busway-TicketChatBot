@@ -25,6 +25,10 @@ public class DriverService {
         return this.mapToDriverDTO(this.driverRepository.findById(id).orElse(null));
     }
 
+    public void save(DriverDTO driverDTO) {
+        this.driverRepository.save(this.mapToDriver(driverDTO));
+    }
+
     public Driver mapToDriver(DriverDTO driverDTO){
         return Driver.builder()
                 .id(driverDTO.getId())

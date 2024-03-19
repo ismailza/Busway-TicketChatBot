@@ -4,16 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
+
+import java.time.LocalTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PassengerDTO {
+public class DepartureDTO {
     private Long id;
-    private String firstname;
-    private String lastname;
-    private String email;
+    private LocalTime departureAt;
+    private int embarking;
+    private StationDTO station;
 }

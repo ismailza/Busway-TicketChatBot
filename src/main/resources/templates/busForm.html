@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Busway</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<header th:replace="include/navbar :: navbar"></header>
+<div class="container">
+    <h1 class="mt-4" th:text="${bus != null && bus.matriculation != null} ? 'Modifier le bus' : 'Ajouter un bus'"></h1>
+    <div class="row mt-4 d-flex justify-content-center">
+        <div class="col-md-6">
+            <form th:action="@{/bus/save}" method="post" class="form-horizontal">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="matriculation" class="form-label">Matriculation</label>
+                        <input type="text" class="form-control" id="matriculation" name="matriculation" placeholder="Matriculation" th:value="${bus != null} ? ${bus.matriculation} : ''" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="busLine" class="form-label">Numero du Bus</label>
+                        <input type="number" min="1" step="1" class="form-control" id="busLine" name="busLine" placeholder="Numero du bus" th:value="${bus != null} ? ${bus.busLine} : ''" required>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="capacity" class="form-label">Places limite</label>
+                        <input type="number" min="1" step="1" class="form-control" id="capacity" name="capacity" placeholder="Places limite" th:value="${bus != null} ? ${bus.capacity} : ''" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="conducteur" class="form-label">Conducteur</label>
+                        <select id="conducteur" class="form-select" name="driver.id" required>
+                            <option selected disabled>Sélectionner un conducteur</option>
+                            <option th:each="driver : ${drivers}" th:value="${driver.id}" th:text="${driver.lastname} + ' ' + ${driver.firstname}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-2 float-end">
+                    <a th:href="@{/buses}" type="button" class="btn btn-default">Annuler</a>
+                    <button type="submit" class="btn btn-primary" th:text="${bus != null && bus.matriculation != null} ? 'Modifier' : 'Ajouter'"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
