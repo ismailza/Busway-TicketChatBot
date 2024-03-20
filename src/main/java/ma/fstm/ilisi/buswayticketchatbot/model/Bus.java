@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ma.fstm.ilisi.buswayticketchatbot.dto.BookingDTO;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Data
@@ -40,7 +42,7 @@ public class Bus {
      * @param to The arrival station
      * @return true if the bus passed by the stations
      */
-    public boolean passedBy(Station from, Station to) {
+    public BookingDTO passedBy(Station from, Station to) {
         LocalTime departureTime = null;
         if (this.departure.getStation().getId().equals(from.getId())) {
             departureTime = this.departure.getDepartureAt();
@@ -53,11 +55,15 @@ public class Bus {
             }
         }
         if (departureTime == null || LocalTime.now().isAfter(departureTime))
-            return false;
-        if (this.arrival.getStation().getId().equals(to.getId()))
-            return true;
-
-        return true;
+            return null;
+        if (this.arrival.getStation().getId().equals(to.getId())) {
+            return new BookingDTO(from.getName(), departureTime.format(DateTimeFormatter.ofPattern("HH:mm")), to.getName(), this.arrival.getArrivalAt().format(DateTimeFormatter.ofPattern("HH:mm")));
+        }
+        for (Stops stop : stops) {
+            if (stop.getStation().getId().equals(to.getId()) && stop.getStopedAt().isAfter(departureTime))
+                return new BookingDTO(from.getName(), departureTime.format(DateTimeFormatter.ofPattern("HH:mm")), to.getName(), stop.getStopedAt().format(DateTimeFormatter.ofPattern("HH:mm")));
+        }
+        return null;
     }
 
     /**

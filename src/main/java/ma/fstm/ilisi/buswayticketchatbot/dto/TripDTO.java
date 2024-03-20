@@ -18,5 +18,6 @@ public class TripDTO {
     private LocalTime departureAt;
     private Long arrivalId;
     private LocalTime arrivalAt;
+    private BookingDTO bookingDTO;
 
 }

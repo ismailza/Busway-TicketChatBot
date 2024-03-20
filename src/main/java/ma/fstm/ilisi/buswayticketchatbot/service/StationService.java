@@ -50,4 +50,18 @@ public class StationService {
                 .longitude(stationDTO.getLongitude())
                 .build();
     }
+
+    public StationDTO findNearest(Double latitude, Double longitude) {
+        double minDistance = Double.MAX_VALUE;
+        Station nearestStation = null;
+
+        for (Station station : this.stationRepository.findAll()) {
+            double distance = station.distance(latitude, longitude);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestStation = station;
+            }
+        }
+        return nearestStation != null ? this.mapToStationDTO(nearestStation) : null;
+    }
 }

@@ -1,18 +1,25 @@
 package ma.fstm.ilisi.buswayticketchatbot.service;
 
+import com.google.gson.Gson;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import ma.fstm.ilisi.buswayticketchatbot.dto.BookingDTO;
+import ma.fstm.ilisi.buswayticketchatbot.dto.PassengerDTO;
 import ma.fstm.ilisi.buswayticketchatbot.dto.TripDTO;
-import ma.fstm.ilisi.buswayticketchatbot.model.Arrival;
-import ma.fstm.ilisi.buswayticketchatbot.model.Bus;
-import ma.fstm.ilisi.buswayticketchatbot.model.Departure;
-import ma.fstm.ilisi.buswayticketchatbot.model.Station;
+import ma.fstm.ilisi.buswayticketchatbot.model.*;
 import ma.fstm.ilisi.buswayticketchatbot.repository.BusRepository;
+import ma.fstm.ilisi.buswayticketchatbot.repository.PassengerRepository;
 import ma.fstm.ilisi.buswayticketchatbot.repository.StationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class TripService {
@@ -20,10 +27,13 @@ public class TripService {
     private BusRepository busRepository;
     @Autowired
     private StationRepository stationRepository;
+    @Autowired
+    private PassengerRepository passengerRepository;
 
-    public TripService(BusRepository busRepository, StationRepository stationRepository) {
+    public TripService(BusRepository busRepository, StationRepository stationRepository, PassengerRepository passengerRepository) {
         this.busRepository = busRepository;
         this.stationRepository = stationRepository;
+        this.passengerRepository = passengerRepository;
     }
 
     public List<TripDTO> findAll(Long fromId, Long toId) {
@@ -36,18 +46,57 @@ public class TripService {
         Station to = toOptional.get();
         List<Bus> buses = busRepository.findAll();
         for (Bus bus : buses) {
-            if (bus.isAvailable(from, to)) {
+            BookingDTO bookingDTO = bus.passedBy(from, to);
+            if (bookingDTO != null && bus.isAvailable(from, to)) {
                 TripDTO trip = TripDTO.builder()
                         .busMatriculation(bus.getMatriculation())
                         .departureAt(bus.getDeparture().getDepartureAt())
                         .arrivalAt(bus.getArrival().getArrivalAt())
                         .departureId(fromId)
                         .arrivalId(toId)
+                        .bookingDTO(bookingDTO)
                         .build();
                 trips.add(trip);
             }
         }
         return trips;
+    }
+
+    public String reserve(Long busMatriculation, Long departureId, Long arrivalId, PassengerDTO passengerDTO) {
+        Bus bus = busRepository.findById(busMatriculation)
+                .orElseThrow(() -> new RuntimeException("Bus not found"));
+        Station departure = stationRepository.findById(departureId)
+                .orElseThrow(() -> new RuntimeException("Departure station not found"));
+        Station arrival = stationRepository.findById(arrivalId)
+                .orElseThrow(() -> new RuntimeException("Arrival station not found"));
+        Passenger passenger = Passenger.builder()
+                .firstname(passengerDTO.getFirstname())
+                .lastname(passengerDTO.getLastname())
+                .email(passengerDTO.getEmail())
+                .booked(new ArrayList<>())
+                .build();
+        Booked booked = Booked.builder()
+                .bookedAt(LocalDateTime.now())
+                .bus(bus)
+                .build();
+        passenger.getBooked().add(booked);
+        this.passengerRepository.save(passenger);
+        return "Booking confirmed, " + LocalDateTime.now() + " for " + passengerDTO.getFirstname() + " " + passengerDTO.getLastname() + " from " + departure.getName() + " to " + arrival.getName() + " on bus " + bus.getMatriculation();
+    }
+
+    public String createQRCode(String booking) throws WriterException, IOException {
+        Gson gson = new Gson();
+        HashMap<String, String> dataMap = new HashMap<>();
+        dataMap.put("booking", booking);
+        String qrCodeData = gson.toJson(dataMap);
+
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(qrCodeData, BarcodeFormat.QR_CODE, 80, 80);
+        ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+        byte[] qrCodeImageBytes = pngOutputStream.toByteArray();
+
+        return Base64.getEncoder().encodeToString(qrCodeImageBytes);
     }
 
     public void save(TripDTO trip) {

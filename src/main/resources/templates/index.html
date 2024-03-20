@@ -17,18 +17,26 @@
     <div class="container mt-5">
         <h2 class="text-center mb-4">Trouvez votre voyage ici</h2>
         <div class="row mt-4 d-flex justify-content-center">
+            <div th:if="${success}" class="alert alert-success" role="alert">
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <span th:text="${error}"></span>
+            </div>
             <form class="needs-validation" method="post" action="/search" style="max-width: 800px;">
+                <div id="nearestStationDisplay" class="alert alert-info" style="display:none"></div>
+
                 <div class="row g-3">
                     <div class="col-md-6 mt-3">
                         <label for="stationDepart" class="form-label">Station de départ</label>
-                        <select id="stationDepart" class="form-select" name="depart" required>
+                        <select id="stationDepart" class="form-select" name="fromId" required>
                             <option disabled selected>Sélectionner une station</option>
                             <option th:each="station : ${stations}" th:value="${station.id}" th:text="${station.name}"></option>
                         </select>
                     </div>
                     <div class="col-md-6 mt-3">
                         <label for="stationArrivee" class="form-label">Station d'arrivée</label>
-                        <select id="stationArrivee" class="form-select" name="arrivee" required>
+                        <select id="stationArrivee" class="form-select" name="toId" required>
                             <option disabled selected>Sélectionner une station</option>
                             <option th:each="station : ${stations}" th:value="${station.id}" th:text="${station.name}"></option>
                         </select>

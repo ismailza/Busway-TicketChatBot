@@ -27,7 +27,7 @@ public class BusController {
 
     @GetMapping("/buses")
     public String getAllBuses(Model model) {
-        // model.addAttribute("buses", this.busService.findAll());
+        model.addAttribute("buses", this.busService.findAll());
         return "buses";
     }
 

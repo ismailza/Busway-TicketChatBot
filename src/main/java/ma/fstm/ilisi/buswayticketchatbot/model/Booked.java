@@ -6,23 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.schema.RelationshipProperties;
+import org.springframework.data.neo4j.core.schema.TargetNode;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Node
-public class Passenger {
+@RelationshipProperties
+public class Booked {
     @Id
     @GeneratedValue
     private Long id;
-    private String firstname;
-    private String lastname;
-    private String email;
-    @Relationship(value = "BOOKED", direction = Relationship.Direction.OUTGOING)
-    private List<Booked> booked;
+    private LocalDateTime bookedAt;
+    @TargetNode
+    private Bus bus;
+
 }

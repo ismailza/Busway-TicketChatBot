@@ -34,8 +34,14 @@ public class Station {
      * @return the distance in kilometers
      */
     public double distance(double latitude, double longitude) {
-        // TODO implement this method using an api
-        return 0;
+        final double EARTH_RADIUS = 6371; // in kilometers
+        double dLat = Math.toRadians(this.latitude - latitude);
+        double dLon = Math.toRadians(this.longitude - longitude);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(this.latitude)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return EARTH_RADIUS * c;
     }
 
 }
