@@ -8,6 +8,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import ma.fstm.ilisi.buswayticketchatbot.dto.BookingDTO;
 import ma.fstm.ilisi.buswayticketchatbot.dto.PassengerDTO;
+import ma.fstm.ilisi.buswayticketchatbot.dto.StopDTO;
 import ma.fstm.ilisi.buswayticketchatbot.dto.TripDTO;
 import ma.fstm.ilisi.buswayticketchatbot.model.*;
 import ma.fstm.ilisi.buswayticketchatbot.repository.BusRepository;
@@ -107,6 +108,22 @@ public class TripService {
         Station arrivalStation = stationRepository.findById(trip.getArrivalId())
                 .orElseThrow(() -> new RuntimeException("Arrival station not found"));
 
+        List<Stops> stops = new ArrayList<>();
+        for (StopDTO stop : trip.getStopStations()) {
+            Station station = stationRepository.findById(stop.getId())
+                    .orElseThrow(() -> new RuntimeException("Station not found"));
+            stops.add(Stops.builder()
+                    .station(station)
+                    .stopedAt(stop.getStopedAt())
+                    .build());
+        }
+
+        departureStation.getNextStations().add(Next.builder().station(stops.getFirst().getStation()).build());
+        stops.getLast().getStation().getNextStations().add(Next.builder().station(arrivalStation).build());
+        for (int i = 0; i < stops.size() - 1; i++) {
+            stops.get(i).getStation().getNextStations().add(Next.builder().station(stops.get(i + 1).getStation()).build());
+        }
+
         bus.setDeparture(Departure.builder()
                 .station(departureStation)
                 .departureAt(trip.getDepartureAt())
@@ -116,6 +133,9 @@ public class TripService {
                 .station(arrivalStation)
                 .arrivalAt(trip.getArrivalAt())
                 .build());
+
+        bus.setStops(stops);
+
         busRepository.save(bus);
     }
 

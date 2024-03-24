@@ -33,7 +33,7 @@ const getCoordinates = () => {
 
 const getNearestStations = (latitude, longitude) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('GET', `/nearestStation?latitude=${latitude}&longitude=${longitude}`, true);
+    xhr.open('GET', `/api/nearestStation?latitude=${latitude}&longitude=${longitude}`, true);
     xhr.send();
 
     xhr.onload = function() {

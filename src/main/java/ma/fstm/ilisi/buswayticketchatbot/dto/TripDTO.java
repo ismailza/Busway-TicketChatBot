@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,6 +20,7 @@ public class TripDTO {
     private LocalTime departureAt;
     private Long arrivalId;
     private LocalTime arrivalAt;
+    private List<StopDTO> stopStations = new ArrayList<>();
     private BookingDTO bookingDTO;
 
 }
