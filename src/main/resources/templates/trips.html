@@ -17,14 +17,27 @@
     <a th:href="@{/trip/new}" class="btn btn-sm btn-primary my-4 float-end">Ajouter un voyage</a>
     <table class="table table-striped table-bordered my-4">
         <thead>
-        <th>Station départ</th>
-        <th>Heure départ</th>
-        <th>Station arrivee</th>
-        <th>Heure arrivee</th>
-        <th>Actions</th>
+            <th>Matricule bus</th>
+            <th>Ligne</th>
+            <th>Station départ</th>
+            <th>Heure départ</th>
+            <th>Station arrivee</th>
+            <th>Heure arrivee</th>
+            <th>Actions</th>
         </thead>
         <tbody>
-        
+            <tr th:each="trip : ${trips}">
+                <td th:text="${trip.busMatriculation}"></td>
+                <td th:text="${trip.busLine}"></td>
+                <td th:text="${trip.departure.name}"></td>
+                <td th:text="${trip.departureAt}"></td>
+                <td th:text="${trip.arrival.name}"></td>
+                <td th:text="${trip.arrivalAt}"></td>
+                <td>
+                    <a th:href="@{/trip/edit/{id}(id=${trip.busMatriculation})}" class="btn btn-sm btn-warning">Modifier</a>
+                    <a th:href="@{/trip/delete/{id}(id=${trip.busMatriculation})}" class="btn btn-sm btn-danger">Supprimer</a>
+                </td>
+            </tr>
         </tbody>
     </table>
 </div>

@@ -2,8 +2,7 @@ package ma.fstm.ilisi.buswayticketchatbot.controller;
 
 import com.google.zxing.WriterException;
 import ma.fstm.ilisi.buswayticketchatbot.dto.PassengerDTO;
-import ma.fstm.ilisi.buswayticketchatbot.dto.StationDTO;
-import ma.fstm.ilisi.buswayticketchatbot.dto.TripDTO;
+import ma.fstm.ilisi.buswayticketchatbot.dto.TripForm;
 import ma.fstm.ilisi.buswayticketchatbot.service.BusService;
 import ma.fstm.ilisi.buswayticketchatbot.service.StationService;
 import ma.fstm.ilisi.buswayticketchatbot.service.TripService;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -37,7 +35,7 @@ public class TripController {
 
     @GetMapping("/trips")
     public String getTrips(Model model){
-
+        model.addAttribute("trips", this.tripService.findAll());
         return "trips";
     }
 
@@ -45,7 +43,7 @@ public class TripController {
     public String getAvailableTrips(@RequestParam(value = "fromId", required = true) Long fromId,
                                     @RequestParam(value = "toId", required = true) Long toId,
                                     Model model, RedirectAttributes redirectAttributes) {
-        List<TripDTO> trips = this.tripService.findAll(fromId, toId);
+        List<TripForm> trips = this.tripService.findAll(fromId, toId);
         if (trips.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "No trips available");
             return "redirect:/";
@@ -104,7 +102,7 @@ public class TripController {
     }
 
     @PostMapping("/trip/save")
-    public String save(@ModelAttribute TripDTO trip, RedirectAttributes redirectAttributes) {
+    public String save(@ModelAttribute TripForm trip, RedirectAttributes redirectAttributes) {
         this.tripService.save(trip);
         redirectAttributes.addFlashAttribute("success", "Trip successfully created!");
         return "redirect:/trips";

@@ -6,10 +6,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import ma.fstm.ilisi.buswayticketchatbot.dto.BookingDTO;
-import ma.fstm.ilisi.buswayticketchatbot.dto.PassengerDTO;
-import ma.fstm.ilisi.buswayticketchatbot.dto.StopDTO;
-import ma.fstm.ilisi.buswayticketchatbot.dto.TripDTO;
+import ma.fstm.ilisi.buswayticketchatbot.dto.*;
 import ma.fstm.ilisi.buswayticketchatbot.model.*;
 import ma.fstm.ilisi.buswayticketchatbot.repository.BusRepository;
 import ma.fstm.ilisi.buswayticketchatbot.repository.PassengerRepository;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -37,8 +35,35 @@ public class TripService {
         this.passengerRepository = passengerRepository;
     }
 
-    public List<TripDTO> findAll(Long fromId, Long toId) {
+    public List<TripDTO> findAll() {
         List<TripDTO> trips = new ArrayList<>();
+        List<Bus> buses = busRepository.findAll();
+        for (Bus bus : buses) {
+            TripDTO trip = TripDTO.builder()
+                    .busMatriculation(bus.getMatriculation())
+                    .busLine(bus.getBusLine())
+                    .departureAt(bus.getDeparture().getDepartureAt())
+                    .arrivalAt(bus.getArrival().getArrivalAt())
+                    .departure(StationDTO.builder()
+                            .id(bus.getDeparture().getStation().getId())
+                            .name(bus.getDeparture().getStation().getName())
+                            .latitude(bus.getDeparture().getStation().getLatitude())
+                            .longitude(bus.getDeparture().getStation().getLongitude())
+                            .build())
+                    .arrival(StationDTO.builder()
+                            .id(bus.getArrival().getStation().getId())
+                            .name(bus.getArrival().getStation().getName())
+                            .latitude(bus.getArrival().getStation().getLatitude())
+                            .longitude(bus.getArrival().getStation().getLongitude())
+                            .build())
+                    .build();
+            trips.add(trip);
+        }
+        return trips;
+    }
+
+    public List<TripForm> findAll(Long fromId, Long toId) {
+        List<TripForm> trips = new ArrayList<>();
         Optional<Station> fromOptional = this.stationRepository.findById(fromId);
         if (fromOptional.isEmpty()) throw new RuntimeException("Station not found");
         Station from = fromOptional.get();
@@ -49,7 +74,7 @@ public class TripService {
         for (Bus bus : buses) {
             BookingDTO bookingDTO = bus.passedBy(from, to);
             if (bookingDTO != null && bus.isAvailable(from, to)) {
-                TripDTO trip = TripDTO.builder()
+                TripForm trip = TripForm.builder()
                         .busMatriculation(bus.getMatriculation())
                         .departureAt(bus.getDeparture().getDepartureAt())
                         .arrivalAt(bus.getArrival().getArrivalAt())
@@ -100,7 +125,7 @@ public class TripService {
         return Base64.getEncoder().encodeToString(qrCodeImageBytes);
     }
 
-    public void save(TripDTO trip) {
+    public void save(TripForm trip) {
         Bus bus = busRepository.findById(trip.getBusMatriculation())
                 .orElseThrow(() -> new RuntimeException("Bus not found"));
         Station departureStation = stationRepository.findById(trip.getDepartureId())
@@ -118,10 +143,16 @@ public class TripService {
                     .build());
         }
 
-        departureStation.getNextStations().add(Next.builder().station(stops.getFirst().getStation()).build());
+        departureStation.getNextStations().add(Next.builder()
+                .station(stops.getFirst().getStation())
+                .duration((int) Duration.between(trip.getDepartureAt(), stops.getFirst().getStopedAt()).toMinutes())
+                .build());
         stops.getLast().getStation().getNextStations().add(Next.builder().station(arrivalStation).build());
         for (int i = 0; i < stops.size() - 1; i++) {
-            stops.get(i).getStation().getNextStations().add(Next.builder().station(stops.get(i + 1).getStation()).build());
+            stops.get(i).getStation().getNextStations().add(Next.builder()
+                    .station(stops.get(i + 1).getStation())
+                    .duration((int) Duration.between(stops.get(i).getStopedAt(), stops.get(i + 1).getStopedAt()).toMinutes())
+                    .build());
         }
 
         bus.setDeparture(Departure.builder()

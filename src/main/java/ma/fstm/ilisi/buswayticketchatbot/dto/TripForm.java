@@ -13,13 +13,14 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TripDTO {
+public class TripForm {
     private Long busMatriculation;
-    private int busLine;
     private double tarif;
-    private StationDTO departure;
+    private Long departureId;
     private LocalTime departureAt;
-    private StationDTO arrival;
+    private Long arrivalId;
     private LocalTime arrivalAt;
     private List<StopDTO> stopStations = new ArrayList<>();
+    private BookingDTO bookingDTO;
+
 }
