@@ -1,0 +1,8 @@
+0,BONJOUR,*,*,Bonjour ! Comment puis-je vous aider pour votre voyage en bus aujourd'hui ?,busway.aiml
+0,TROUVER LA STATION LA PLUS PROCHE,*,*,Merci de me fournir votre emplacement...,busway.aiml
+0,VOTRE COORDONNÉE EST : *, *,*,*,Checking available trips from <star index="1"/> to <star index="2"/>,busway.aiml
+0,MA POSITION EST *,*,*,Merci#Comma laissez-moi trouver la station la plus proche de vous...,busway.aiml
+0,MERCI,*,*,De rien ! Passez une excellente journée !,busway.aiml
+0,AU REVOIR,*,*,Au revoir ! Passez une excellente journée !,busway.aiml
+0,AIDE,*,*,Comment puis-je vous aider aujourd'hui ?,busway.aiml
+0,*,*,*,Je suis désolé#Comma je ne comprends pas. Veuillez essayer à nouveau.,busway.aiml

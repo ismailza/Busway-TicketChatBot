@@ -20,4 +20,9 @@ public class Controller {
         return "index";
     }
 
+    @GetMapping("/chatbot")
+    public String chatbot() {
+        return "chatbot";
+    }
+
 }

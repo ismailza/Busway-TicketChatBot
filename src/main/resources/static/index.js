@@ -62,4 +62,3 @@ const getNearestStations = (latitude, longitude) => {
         console.error("Request failed");
     };
 };
-
